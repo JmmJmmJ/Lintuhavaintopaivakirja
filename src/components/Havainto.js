@@ -1,4 +1,4 @@
-const Havainto = ({ havainto }) => {
+const Havainto = ({ havainto, removeHavainto }) => {
   return (
     <tr>
       <td>{havainto.laji}</td>
@@ -7,6 +7,10 @@ const Havainto = ({ havainto }) => {
       <td>{havainto.aika}</td>
       <td>{havainto.maara}</td>
       <td>{havainto.kommentit}</td>
+      <td>
+        {" "}
+        <button onClick={removeHavainto}>delete</button>
+      </td>
     </tr>
   );
 };

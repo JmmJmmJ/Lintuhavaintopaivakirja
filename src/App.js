@@ -32,6 +32,10 @@ const App = () => {
     setHavainnot(havainnot.concat(havainto));
   };
 
+  const removeHavainto = (id) => {
+    setHavainnot(havainnot.filter((havainto) => havainto.id !== id));
+  };
+
   const havainnotFilter =
     search === ""
       ? havainnot
@@ -57,11 +61,16 @@ const App = () => {
             <th>Aika</th>
             <th>Lukumäärä</th>
             <th>Kommentit</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {havainnotFilter.map((havainto) => (
-            <Havainto key={havainto.id} havainto={havainto} />
+            <Havainto
+              key={havainto.id}
+              havainto={havainto}
+              removeHavainto={() => removeHavainto(havainto.id)}
+            />
           ))}
         </tbody>
       </table>
