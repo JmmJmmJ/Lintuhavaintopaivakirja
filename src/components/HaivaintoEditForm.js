@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const HavaintoForm = ({ addHavainto }) => {
+const HavaintoForm = ({ updateHavainto, havainto }) => {
   const [laji, setLaji] = useState("");
   const [paikka, setPaikka] = useState("");
   const [paiva, setPaiva] = useState("");
@@ -32,11 +32,11 @@ const HavaintoForm = ({ addHavainto }) => {
     setKommentti(event.target.value);
   };
 
-  const createHavainto = (event) => {
+  const uHavainto = (event) => {
     event.preventDefault();
 
-    addHavainto({
-      id: Math.random() * 1000,
+    updateHavainto({
+      id: havainto.id,
       laji: laji,
       paikka: paikka,
       paiva: paiva,
@@ -53,7 +53,7 @@ const HavaintoForm = ({ addHavainto }) => {
   };
 
   return (
-    <form onSubmit={createHavainto}>
+    <form onSubmit={uHavainto}>
       <input
         id="laji"
         value={laji}
@@ -89,7 +89,7 @@ const HavaintoForm = ({ addHavainto }) => {
         placeholder="Kommentti"
         onChange={handleKommenttiChange}
       />
-      <button type="submit">Lisää</button>
+      <button type="submit">Tallenna</button>
     </form>
   );
 };

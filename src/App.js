@@ -1,7 +1,8 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Havainto from "./components/Havainto";
 import HavaintoForm from "./components/HaivaintoForm";
+import havainnotService from "./services/havainnot";
 
 const App = () => {
   const hav = [
@@ -28,12 +29,43 @@ const App = () => {
   const [havainnot, setHavainnot] = useState(hav);
   const [search, setFilter] = useState("");
 
+  useEffect(() => {
+    havainnotService.getAll().then((havainnot) => setHavainnot(havainnot));
+  }, []);
+
   const addHavainto = (havainto) => {
-    setHavainnot(havainnot.concat(havainto));
+    havainnotService.create(havainto).then((returnedHavainto) => {
+      setHavainnot(havainnot.concat(returnedHavainto));
+    });
   };
 
   const removeHavainto = (id) => {
-    setHavainnot(havainnot.filter((havainto) => havainto.id !== id));
+    const havaintoToRemove = havainnot.find((h) => h.id === id);
+    if (
+      window.confirm(
+        `Poista havainto ${havaintoToRemove.laji} ${havaintoToRemove.paiva}`
+      )
+    ) {
+      havainnotService.del(id).then(() => {
+        setHavainnot(havainnot.filter((havainto) => havainto.id !== id));
+      });
+    }
+  };
+
+  const updateHavainto = (havainto) => {
+    if (
+      window.confirm(`Muokkaa havaintoa ${havainto.laji} ${havainto.paiva}`)
+    ) {
+      havainnotService
+        .update(havainto.id, havainto)
+        .then((returnedHavainto) => {
+          setHavainnot(
+            havainnot.map((hav) =>
+              hav.id !== havainto.id ? hav : returnedHavainto
+            )
+          );
+        });
+    }
   };
 
   const havainnotFilter =
@@ -47,6 +79,16 @@ const App = () => {
     setFilter(event.target.value);
   };
 
+  const sortLaji = (event) => {
+    setHavainnot(
+      havainnot
+        .concat()
+        .sort((a, b) =>
+          a.laji.toLowerCase().localeCompare(b.laji.toLowerCase())
+        )
+    );
+  };
+
   return (
     <div className="content">
       <h1>Havainnot</h1>
@@ -55,11 +97,11 @@ const App = () => {
       <table className="havainnot-table">
         <thead>
           <tr>
-            <th>Laji</th>
+            <th onClick={sortLaji}>Laji</th>
             <th>Paikka</th>
             <th>Päivämäärä</th>
             <th>Aika</th>
-            <th>Lukumäärä</th>
+            <th>Määrä</th>
             <th>Kommentit</th>
             <th></th>
           </tr>
@@ -70,6 +112,7 @@ const App = () => {
               key={havainto.id}
               havainto={havainto}
               removeHavainto={() => removeHavainto(havainto.id)}
+              updateHavainto={updateHavainto}
             />
           ))}
         </tbody>
