@@ -1,12 +1,12 @@
 import { useState } from "react";
 
 const HavaintoForm = ({ updateHavainto, havainto }) => {
-  const [laji, setLaji] = useState("");
-  const [paikka, setPaikka] = useState("");
-  const [paiva, setPaiva] = useState("");
-  const [aika, setAika] = useState("");
-  const [maara, setMaara] = useState("");
-  const [kommentti, setKommentti] = useState("");
+  const [laji, setLaji] = useState(havainto.laji);
+  const [paikka, setPaikka] = useState(havainto.paikka);
+  const [paiva, setPaiva] = useState(havainto.paiva);
+  const [aika, setAika] = useState(havainto.aika);
+  const [maara, setMaara] = useState(havainto.maara);
+  const [kommentti, setKommentti] = useState(havainto.kommentit);
 
   const handleLajiChange = (event) => {
     setLaji(event.target.value);
@@ -44,12 +44,6 @@ const HavaintoForm = ({ updateHavainto, havainto }) => {
       maara: maara,
       kommentit: kommentti,
     });
-    setLaji("");
-    setPaikka("");
-    setPaiva("");
-    setAika("");
-    setMaara("");
-    setKommentti("");
   };
 
   return (
@@ -86,6 +80,7 @@ const HavaintoForm = ({ updateHavainto, havainto }) => {
       />
       <input
         id="kommentti"
+        value={kommentti}
         placeholder="Kommentti"
         onChange={handleKommenttiChange}
       />

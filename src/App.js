@@ -5,38 +5,26 @@ import HavaintoForm from "./components/HaivaintoForm";
 import havainnotService from "./services/havainnot";
 
 const App = () => {
-  const hav = [
-    {
-      id: "1",
-      laji: "Harakka",
-      paikka: "Alajärvi",
-      paiva: "30.3.2022",
-      aika: "16:05",
-      maara: 4,
-      kommentit: "Lumi sadetta",
-    },
-    {
-      id: "2",
-      laji: "Varis",
-      paikka: "Alajärvi",
-      paiva: "29.3.2022",
-      aika: "12.24",
-      maara: 3,
-      kommentit: "Lunta",
-    },
-  ];
-
-  const [havainnot, setHavainnot] = useState(hav);
+  const [havainnot, setHavainnot] = useState([]);
   const [search, setFilter] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     havainnotService.getAll().then((havainnot) => setHavainnot(havainnot));
   }, []);
 
   const addHavainto = (havainto) => {
-    havainnotService.create(havainto).then((returnedHavainto) => {
-      setHavainnot(havainnot.concat(returnedHavainto));
-    });
+    havainnotService
+      .create(havainto)
+      .then((returnedHavainto) => {
+        setHavainnot(havainnot.concat(returnedHavainto));
+      })
+      .catch((error) => {
+        setErrorMessage(error.response.data.error);
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+      });
   };
 
   const removeHavainto = (id) => {
@@ -68,6 +56,14 @@ const App = () => {
     }
   };
 
+  const Notification = ({ message, clas }) => {
+    if (message === null) {
+      return null;
+    }
+
+    return <div className="error">{message}</div>;
+  };
+
   const havainnotFilter =
     search === ""
       ? havainnot
@@ -91,6 +87,7 @@ const App = () => {
 
   return (
     <div className="content">
+      <Notification message={errorMessage} />
       <h1>Havainnot</h1>
       <HavaintoForm addHavainto={addHavainto} />
       <input id="filter" placeholder="Suodata" onChange={handleFilterChange} />
