@@ -6,8 +6,10 @@ import havainnotService from "./services/havainnot";
 
 const App = () => {
   const [havainnot, setHavainnot] = useState([]);
-  const [search, setFilter] = useState("");
+  const [searchL, setFilterL] = useState("");
+  const [searchP, setFilterP] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
+  const [filterYear, setFilterYear] = useState("");
 
   useEffect(() => {
     havainnotService.getAll().then((havainnot) => setHavainnot(havainnot));
@@ -64,24 +66,72 @@ const App = () => {
     return <div className="error">{message}</div>;
   };
 
-  const havainnotFilter =
-    search === ""
-      ? havainnot
-      : havainnot.filter((havainto) =>
-          havainto.laji.toLowerCase().startsWith(search)
-        );
-
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
+  const havainnotFilter = () => {
+    if (searchL === "" && searchP !== "") {
+      return havainnot.filter((havainto) =>
+        havainto.paikka.toLowerCase().startsWith(searchP)
+      );
+    } else if (searchL !== "" && searchP === "") {
+      return havainnot.filter((havainto) =>
+        havainto.laji.toLowerCase().startsWith(searchL)
+      );
+    } else if (searchL !== "" && searchP !== "") {
+      return havainnot.filter(
+        (havainto) =>
+          havainto.laji.toLowerCase().startsWith(searchL) &&
+          havainto.paikka.toLowerCase().startsWith(searchP)
+      );
+    } else {
+      return havainnot;
+    }
   };
 
-  const sortLaji = (event) => {
+  const havainnotFilterYear = () => {
+    const startDate = new Date(`${filterYear}-01-01`);
+    const endDate = new Date(`${filterYear}-12-31`);
+    const havainnotFromDay = havainnot.filter((havainto) => {
+      const date = new Date(havainto.paiva);
+      return date >= startDate && date <= endDate;
+    });
+    setHavainnot(havainnotFromDay);
+  };
+
+  const filterYearReset = () => {
+    havainnotService.getAll().then((havainnot) => setHavainnot(havainnot));
+  };
+
+  const handleFilterChange = (event) => {
+    setFilterL(event.target.value);
+  };
+
+  const handleFilterPChange = (event) => {
+    setFilterP(event.target.value);
+  };
+
+  const handleFilterYearChange = (event) => {
+    setFilterYear(event.target.value);
+  };
+
+  const sortTableA = (column) => {
     setHavainnot(
       havainnot
         .concat()
         .sort((a, b) =>
-          a.laji.toLowerCase().localeCompare(b.laji.toLowerCase())
+          a[column].toLowerCase().localeCompare(b[column].toLowerCase())
         )
+    );
+  };
+
+  function dateComparison(a, b) {
+    const date1 = new Date(a);
+    const date2 = new Date(b);
+
+    return date1 - date2;
+  }
+
+  const sortTableD = () => {
+    setHavainnot(
+      havainnot.concat().sort((a, b) => dateComparison(a.paiva, b.paiva))
     );
   };
 
@@ -90,13 +140,25 @@ const App = () => {
       <Notification message={errorMessage} />
       <h1>Havainnot</h1>
       <HavaintoForm addHavainto={addHavainto} />
-      <input id="filter" placeholder="Suodata" onChange={handleFilterChange} />
+      <input
+        id="filter"
+        placeholder="Suodata laji"
+        onChange={handleFilterChange}
+      />
+      <input
+        id="filter"
+        placeholder="Suodata paikka"
+        onChange={handleFilterPChange}
+      />
+      <input onChange={handleFilterYearChange} placeholder="Vuosi"></input>
+      <button onClick={havainnotFilterYear}>Filter vuosi</button>
+      <button onClick={filterYearReset}>Reset</button>
       <table className="havainnot-table">
         <thead>
           <tr>
-            <th onClick={sortLaji}>Laji</th>
-            <th>Paikka</th>
-            <th>Päivämäärä</th>
+            <th onClick={() => sortTableA("laji")}>Laji</th>
+            <th onClick={() => sortTableA("paikka")}>Paikka</th>
+            <th onClick={sortTableD}>Päivämäärä</th>
             <th>Aika</th>
             <th>Määrä</th>
             <th>Kommentit</th>
@@ -104,7 +166,7 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
-          {havainnotFilter.map((havainto) => (
+          {havainnotFilter().map((havainto) => (
             <Havainto
               key={havainto.id}
               havainto={havainto}

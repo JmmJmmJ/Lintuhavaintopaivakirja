@@ -1,9 +1,11 @@
 import { useState } from "react";
 
 const HavaintoForm = ({ updateHavainto, havainto }) => {
+  const date = new Date(havainto.paiva);
+
   const [laji, setLaji] = useState(havainto.laji);
   const [paikka, setPaikka] = useState(havainto.paikka);
-  const [paiva, setPaiva] = useState(havainto.paiva);
+  const [paiva, setPaiva] = useState(date.toLocaleDateString());
   const [aika, setAika] = useState(havainto.aika);
   const [maara, setMaara] = useState(havainto.maara);
   const [kommentti, setKommentti] = useState(havainto.kommentit);

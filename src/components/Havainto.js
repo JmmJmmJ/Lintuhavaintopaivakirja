@@ -9,12 +9,14 @@ const Havainto = ({ havainto, removeHavainto, updateHavainto }) => {
     setVisible(!visible);
   };
 
+  const date = new Date(havainto.paiva);
+
   return (
     <React.Fragment>
       <tr onClick={toggleVisibility}>
         <td>{havainto.laji}</td>
         <td>{havainto.paikka}</td>
-        <td>{havainto.paiva}</td>
+        <td>{date.toLocaleDateString()}</td>
         <td>{havainto.aika}</td>
         <td>{havainto.maara}</td>
         <td>{havainto.kommentit}</td>
