@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Havainto from "./components/Havainto";
 import HavaintoForm from "./components/HaivaintoForm";
 import havainnotService from "./services/havainnot";
+import loginService from "./services/login";
 
 const App = () => {
   const [havainnot, setHavainnot] = useState([]);
@@ -10,10 +11,52 @@ const App = () => {
   const [searchP, setFilterP] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [filterYear, setFilterYear] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    havainnotService.getAll().then((havainnot) => setHavainnot(havainnot));
+    const loggedUserJSON = window.localStorage.getItem("loggedUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      havainnotService.setToken(user.token);
+    }
   }, []);
+
+  useEffect(() => {
+    if (window.localStorage.getItem("loggedUser")) {
+      havainnotService.getAll().then((havainnot) => setHavainnot(havainnot));
+    }
+  }, []);
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    try {
+      const user = await loginService.login({
+        username,
+        password,
+      });
+      setUser(user);
+      console.log(user.token);
+      havainnotService.setToken(user.token);
+      window.localStorage.setItem("loggedUser", JSON.stringify(user));
+      window.localStorage.setItem("userToken", `bearer ${user.token}`);
+      setUsername("");
+      setPassword("");
+      havainnotService.getAll().then((havainnot) => setHavainnot(havainnot));
+    } catch (exception) {
+      setErrorMessage("wrong username or password");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+    }
+  };
+
+  const logout = () => {
+    localStorage.clear();
+    setUser(null);
+  };
 
   const addHavainto = (havainto) => {
     havainnotService
@@ -135,10 +178,54 @@ const App = () => {
     );
   };
 
+  if (user === null) {
+    return (
+      <div className="loginScreen">
+        <title>Kirjaudu</title>
+        <div className="container">
+          <div className="login">
+            <form onSubmit={handleLogin}>
+              <div className="inputBox">
+                <h2 className="text">Kirjaudu sisään</h2>
+                <p className="text">Käyttäjätunnus</p>
+                <input
+                  className="loginInput"
+                  type="text"
+                  value={username}
+                  name="Username"
+                  onChange={({ target }) => setUsername(target.value)}
+                />
+                <p className="text">Salasana</p>
+                <input
+                  className="loginInput"
+                  type="password"
+                  value={password}
+                  name="Password"
+                  onChange={({ target }) => setPassword(target.value)}
+                />
+              </div>
+              <div className="bt">
+                <button type="submit" className="loginButton">
+                  Kirjaudu
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="content">
       <Notification message={errorMessage} />
-      <h1>Havainnot</h1>
+      <div className="header">
+        <h1>Havainnot</h1>
+        {user.name}
+        <button onClick={logout} className="logoutButton">
+          Kirjaudu ulos
+        </button>
+      </div>
       <HavaintoForm addHavainto={addHavainto} />
       <input
         id="filter"
