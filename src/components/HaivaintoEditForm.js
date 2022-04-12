@@ -5,7 +5,7 @@ const HavaintoForm = ({ updateHavainto, havainto }) => {
 
   const [laji, setLaji] = useState(havainto.laji);
   const [paikka, setPaikka] = useState(havainto.paikka);
-  const [paiva, setPaiva] = useState(date.toLocaleDateString());
+  const [paiva, setPaiva] = useState(`${date.toLocaleDateString()}`);
   const [aika, setAika] = useState(havainto.aika);
   const [maara, setMaara] = useState(havainto.maara);
   const [kommentti, setKommentti] = useState(havainto.kommentit);
@@ -34,6 +34,11 @@ const HavaintoForm = ({ updateHavainto, havainto }) => {
     setKommentti(event.target.value);
   };
 
+  const splitDate = (date) => {
+    const parts = date.split(".");
+    return `${parts[1]}/${parts[0]}/${parts[2]}`;
+  };
+
   const uHavainto = (event) => {
     event.preventDefault();
 
@@ -41,7 +46,7 @@ const HavaintoForm = ({ updateHavainto, havainto }) => {
       id: havainto.id,
       laji: laji,
       paikka: paikka,
-      paiva: paiva,
+      paiva: splitDate(paiva),
       aika: aika,
       maara: maara,
       kommentit: kommentti,

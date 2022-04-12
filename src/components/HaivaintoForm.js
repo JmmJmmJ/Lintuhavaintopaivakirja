@@ -35,11 +35,16 @@ const HavaintoForm = ({ addHavainto }) => {
   const createHavainto = (event) => {
     event.preventDefault();
 
+    const splitDate = (date) => {
+      const parts = date.split(".");
+      return `${parts[1]}/${parts[0]}/${parts[2]}`;
+    };
+
     addHavainto({
       id: Math.random() * 1000,
       laji: laji,
       paikka: paikka,
-      paiva: paiva,
+      paiva: splitDate(paiva),
       aika: aika,
       maara: maara,
       kommentit: kommentti,

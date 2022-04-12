@@ -74,9 +74,10 @@ const App = () => {
 
   const removeHavainto = (id) => {
     const havaintoToRemove = havainnot.find((h) => h.id === id);
+    const date = new Date(havaintoToRemove.paiva);
     if (
       window.confirm(
-        `Poista havainto ${havaintoToRemove.laji} ${havaintoToRemove.paiva}`
+        `Poista havainto ${havaintoToRemove.laji} ${date.toLocaleDateString()}`
       )
     ) {
       havainnotService.del(id).then(() => {
@@ -86,8 +87,11 @@ const App = () => {
   };
 
   const updateHavainto = (havainto) => {
+    const date = new Date(havainto.paiva);
     if (
-      window.confirm(`Muokkaa havaintoa ${havainto.laji} ${havainto.paiva}`)
+      window.confirm(
+        `Muokkaa havaintoa ${havainto.laji} ${date.toLocaleDateString()}`
+      )
     ) {
       havainnotService
         .update(havainto.id, havainto)
